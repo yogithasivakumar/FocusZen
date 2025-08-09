@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Summarize - FocusZen</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    #output {
+      margin-top: 20px;
+      max-width: 600px;
+      text-align: left;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #output ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    if (!localStorage.getItem("userEmail")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <header>
+    <div class="logo">📘 FocusZen</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="history.html">View History</a>
+      <a href="about.html">About</a>
+      <a href="summarize.html">Summarize</a>
+    </nav>
+    <div id="userEmailDisplay" style="font-size: 0.9em; color: #ddd; margin-top: 5px;"></div>
+    <script>
+      const emailDisplay = document.getElementById("userEmailDisplay");
+      const userEmail = localStorage.getItem("userEmail");
+      if (userEmail) {
+        emailDisplay.textContent = `Logged in as: ${userEmail}`;
+      }
+    </script>
+  </header>
+
+  <main class="main-container">
+    <div class="card-box">
+      <h2>AI Summarizer</h2>
+      <form id="uploadForm">
+        <input type="file" id="fileInput" accept="application/pdf" required />
+        <button type="submit">Summarize PDF</button>
+      </form>
+      <div id="output"></div>
+    </div>
+  </main>
+
+  <script>
+    const pdfjsLib = window['pdfjsLib'];
+
+    document.getElementById('uploadForm').onsubmit = async function (e) {
+      e.preventDefault();
+      const file = document.getElementById('fileInput').files[0];
+      let text = '';
+
+      if (file && file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = async function () {
+          const pdfData = new Uint8Array(reader.result);
+          const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            text += content.items.map(item => item.str).join(' ') + ' ';
+          }
+
+          callGemini(text);
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        alert('Please upload a valid PDF file.');
+      }
+    };
+
+    async function callGemini(promptText) {
+      const apiKey = "AIzaSyBlF6vPE1N4u-_ODGf4WfzOmFY6RDY9kdA"; // Replace with your actual Gemini API key
+
+      const bodyData = {
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text:
+                  "Summarize the following text into 5-7 bullet points.\n" +
+                  "Return the result in clean Markdown format with each bullet starting with '-':\n\n" +
+                  promptText
+              }
+            ]
+          }
+        ]
+      };
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyData)
+        }
+      );
+
+      const data = await response.json();
+      const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini.";
+      document.getElementById("output").innerHTML = marked.parse(result);
+    }
+  </script>
+</body>
+</html>

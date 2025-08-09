@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FocusZen | History</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #222;
+      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    header nav a {
+      color: #fff;
+      margin: 5px;
+      text-decoration: none;
+    }
+    .main-container {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    .streak-box {
+      padding: 10px 20px;
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.1em;
+    }
+    table {
+      width: 100%;
+      max-width: 800px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #444;
+    }
+    tr:nth-child(even) {
+      background: #1c1c1c;
+    }
+    tr:nth-child(odd) {
+      background: #151515;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    if (!localStorage.getItem("userEmail")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <header>
+    <div class="logo">📘 FocusZen</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="history.html">View History</a>
+      <a href="about.html">About</a>
+      <a href="summarize.html">Summarize</a>
+    </nav>
+    <div id="userEmailDisplay" style="font-size: 0.8em; margin-top: 5px;"></div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- Study History Title -->
+    <h2>📜 Study History</h2>
+
+    <!-- Total Study Days Counter -->
+    <div class="streak-box" id="streakDisplay">🔥 Total Study Days: 0</div>
+
+    <!-- History Table -->
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Topic</th>
+          <th>Duration</th>
+          <th>Notes</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </main>
+
+  <script>
+    // Show logged in email
+    const emailDisplay = document.getElementById("userEmailDisplay");
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+      emailDisplay.textContent = `Logged in as: ${userEmail}`;
+    }
+
+    function formatDuration(value) {
+      let totalSeconds = 0;
+      if (typeof value === "number") {
+        totalSeconds = Math.round(value * 60);
+      } else if (!isNaN(parseFloat(value))) {
+        totalSeconds = Math.round(parseFloat(value) * 60);
+      } else {
+        return value;
+      }
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${mins} mins ${secs} secs`;
+    }
+
+    function formatDateDMY(dateStr) {
+      const date = new Date(dateStr);
+      if (isNaN(date)) return dateStr;
+      const d = String(date.getDate()).padStart(2, '0');
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const y = String(date.getFullYear());
+      return `${d}-${m}-${y}`;
+    }
+
+    const history = JSON.parse(localStorage.getItem('focusHistory')) || [];
+
+    // Sort by date newest first
+    history.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const tbody = document.querySelector("#historyTable tbody");
+
+    if (history.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5">No sessions yet.</td></tr>`;
+    } else {
+      history.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.date ? formatDateDMY(item.date) : ""}</td>
+          <td>${item.topic || ""}</td>
+          <td>${formatDuration(item.duration)}</td>
+          <td>${item.notes || ""}</td>
+          <td>${item.status || ""}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Count only days with actual sessions
+    const uniqueDates = new Set();
+    history.forEach(h => {
+      if (h.date && h.status && h.status.toLowerCase() === "completed") {
+        uniqueDates.add(formatDateDMY(h.date));
+      }
+    });
+
+    document.getElementById("streakDisplay").textContent =
+      `🔥 Total Study Days: ${uniqueDates.size}`;
+  </script>
+</body>
+</html>

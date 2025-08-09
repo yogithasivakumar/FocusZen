@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FocusZen Timer</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #222;
+      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header nav a {
+      color: #fff;
+      margin: 5px;
+      text-decoration: none;
+    }
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 80px);
+    }
+    .card-box {
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 350px;
+      width: 100%;
+      text-align: center;
+    }
+    #timerDisplay {
+      font-size: 3em;
+      margin: 20px 0;
+    }
+    .progress-container {
+      background: #333;
+      border-radius: 5px;
+      height: 20px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    .progress-fill {
+      background: #4cafef;
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s;
+    }
+    button {
+      background: #4cafef;
+      border: none;
+      padding: 10px 15px;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:disabled {
+      background: #777;
+      cursor: not-allowed;
+    }
+    #quoteDisplay {
+      font-size: 0.9em;
+      margin-top: 15px;
+      font-style: italic;
+      color: #ccc;
+    }
+    #streakDisplay {
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: orange;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    if (!localStorage.getItem("userEmail")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <header>
+    <div class="logo">📘 FocusZen</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="history.html">View History</a>
+      <a href="about.html">About</a>
+      <a href="summarize.html">Summarize</a>
+    </nav>
+    <div id="userEmailDisplay" style="font-size: 0.8em; margin-top: 5px;"></div>
+  </header>
+
+  <main class="main-container">
+    <div class="card-box">
+      <div id="streakDisplay">🔥 Streak: 0 days</div>
+      <h2 id="topicLabel">Topic</h2>
+      <div id="timerDisplay">00:00</div>
+      <div class="progress-container">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <audio id="alarmSound" src="alarm.mp3" preload="auto"></audio>
+      <div>
+        <button id="pauseBtn">Pause</button>
+        <button id="resumeBtn" disabled>Resume</button>
+      </div>
+      <div>
+        <button id="cancelBtn">Cancel</button>
+        <button id="completeBtn">Complete</button>
+      </div>
+      <div id="quoteDisplay"></div>
+    </div>
+  </main>
+
+  <script>
+    // Show email
+    const emailDisplay = document.getElementById("userEmailDisplay");
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) emailDisplay.textContent = `Logged in as: ${userEmail}`;
+
+    // --- Load Current Session ---
+    const session = JSON.parse(localStorage.getItem("currentSession"));
+    if (!session) window.location.href = "index.html";
+
+    // --- DOM Elements ---
+    const topicEl = document.getElementById('topicLabel');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const progressFill = document.getElementById('progressFill');
+    const quoteDisplay = document.getElementById('quoteDisplay');
+    const streakDisplay = document.getElementById('streakDisplay');
+    const alarm = document.getElementById('alarmSound');
+    const pauseSound = document.getElementById('pauseSound');
+    const cancelSound = document.getElementById('cancelSound');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const completeBtn = document.getElementById('completeBtn');
+
+    // --- Setup ---
+    topicEl.textContent = session.topic ? `Topic: ${session.topic}` : 'Topic';
+    const totalTime = Math.max(0, parseInt(session.duration || 0)) * 60;
+    let timeLeft = totalTime;
+    let tickInterval = null;
+    let isPaused = false;
+
+    const quotes = [
+      "💡 Stay focused — you got this!",
+      "🔥 Small steps every day!",
+      "🚀 Keep going — progress builds momentum!",
+      "🎯 Focus now, celebrate later!",
+      "📘 Learn a little more today!"
+    ];
+
+    // --- UI Update ---
+    function updateTimerUI() {
+      const mm = Math.floor(timeLeft / 60);
+      const ss = timeLeft % 60;
+      timerDisplay.textContent = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+      const pct = totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 100;
+      progressFill.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+    }
+
+    function playAlarm() { try { alarm.currentTime = 0; alarm.play(); } catch(e) {} }
+    function playPauseSound() { try { pauseSound.currentTime = 0; pauseSound.play(); } catch(e) {} }
+    function playCancelSound() { try { cancelSound.currentTime = 0; cancelSound.play(); } catch(e) {} }
+
+    // --- Save History ---
+    function saveSessionToHistory(status = 'Completed', actualDuration = null) {
+      const history = JSON.parse(localStorage.getItem('focusHistory')) || [];
+      history.push({
+        topic: session.topic || '',
+        duration: actualDuration !== null ? actualDuration : session.duration || '',
+        notes: session.notes || '',
+        date: session.date || new Date().toLocaleDateString(),
+        status
+      });
+      localStorage.setItem('focusHistory', JSON.stringify(history));
+    }
+
+    // --- Streak Handling ---
+    function updateStreakOnComplete() {
+      const today = new Date();
+      const todayStr = today.toLocaleDateString();
+      const yesterdayStr = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).toLocaleDateString();
+
+      const sData = JSON.parse(localStorage.getItem('streakData')) || { streak: 0, lastDate: null };
+
+      if (sData.lastDate === todayStr) {
+        // Already updated today → no change
+      } else if (sData.lastDate === yesterdayStr) {
+        sData.streak = (sData.streak || 0) + 1;
+        sData.lastDate = todayStr;
+      } else {
+        sData.streak = 1;
+        sData.lastDate = todayStr;
+      }
+
+      localStorage.setItem('streakData', JSON.stringify(sData));
+      streakDisplay.textContent = `🔥 Streak: ${sData.streak || 0} days`;
+    }
+
+    (function initStreakUI(){
+      const sData = JSON.parse(localStorage.getItem('streakData')) || { streak: 0, lastDate: null };
+      streakDisplay.textContent = `🔥 Streak: ${sData.streak || 0} days`;
+    })();
+
+    quoteDisplay.textContent = quotes[Math.floor(Math.random()*quotes.length)];
+
+    // --- Timer Start ---
+    function startTicking() {
+      updateTimerUI();
+      clearInterval(tickInterval);
+      tickInterval = setInterval(() => {
+        if (!isPaused) {
+          if (timeLeft > 0) {
+            timeLeft--;
+            updateTimerUI();
+            if (timeLeft % 30 === 0) {
+              quoteDisplay.textContent = quotes[Math.floor(Math.random()*quotes.length)];
+            }
+          } else {
+            clearInterval(tickInterval);
+            updateTimerUI();
+            playAlarm();
+            saveSessionToHistory('Completed', session.duration);
+            updateStreakOnComplete();
+            setTimeout(()=>{
+              alert("⏳ Time's up — well done!");
+              window.location.href = "history.html";
+            }, 200);
+          }
+        }
+      }, 1000);
+    }
+
+    // --- Auto Pause/Resume ---
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && !isPaused) {
+        isPaused = true;
+      } else if (!document.hidden && isPaused) {
+        isPaused = false;
+      }
+    });
+
+    // --- Manual Controls ---
+    pauseBtn.addEventListener('click', () => {
+      isPaused = true;
+      pauseBtn.disabled = true;
+      resumeBtn.disabled = false;
+      playPauseSound();
+    });
+
+    resumeBtn.addEventListener('click', () => {
+      isPaused = false;
+      pauseBtn.disabled = false;
+      resumeBtn.disabled = true;
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      if (confirm("Cancel this session? It will not be saved to history.")) {
+        playCancelSound();
+        clearInterval(tickInterval);
+        localStorage.removeItem('currentSession');
+        window.location.href = "index.html";
+      }
+    });
+
+    completeBtn.addEventListener('click', () => {
+      clearInterval(tickInterval);
+      const elapsedMinutes = Math.floor((totalTime - timeLeft) / 60);
+      const elapsedSeconds = (totalTime - timeLeft) % 60;
+      const elapsedFormatted = `${elapsedMinutes}m ${elapsedSeconds}s`;
+
+      saveSessionToHistory('Completed', elapsedFormatted);
+      updateStreakOnComplete();
+      localStorage.removeItem('currentSession');
+      alert(`✅ Session saved to history.\nYou studied for ${elapsedFormatted}`);
+      window.location.href = "history.html";
+    });
+
+    // --- Start Timer ---
+    startTicking();
+  </script>
+</body>
+</html>

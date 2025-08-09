@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FocusZen | Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="index-page">
+
+  <script>
+    if (!localStorage.getItem("userEmail")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <header>
+    <div class="logo">FocusZen⌚</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="history.html">View History</a>
+      <a href="about.html">About</a>
+      <a href="summarize.html">Summarize</a>
+    </nav>
+    <div id="userEmailDisplay" style="font-size: 0.9em; color: #ddd; margin-top: 5px;"></div>
+    <script>
+      const emailDisplay = document.getElementById("userEmailDisplay");
+      const userEmail = localStorage.getItem("userEmail");
+      if (userEmail) {
+        emailDisplay.textContent = `Logged in as: ${userEmail}`;
+      }
+    </script>
+  </header>
+
+  <main class="main-container">
+    <div class="card-box">
+      <h2>Set Up Your Study Session</h2>
+      <form id="studyForm">
+        <input type="text" id="topic" placeholder="Topic Name" required />
+        <input type="number" id="duration" placeholder="Duration (in minutes)" required />
+        <textarea id="notes" placeholder="Notes to remember..." rows="4"></textarea>
+        <input type="date" id="date" required />
+        <button type="submit">Start Timer</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("studyForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const topic = document.getElementById("topic").value.trim();
+      const duration = document.getElementById("duration").value;
+      const notes = document.getElementById("notes").value.trim();
+      const date = document.getElementById("date").value;
+
+      if (!topic || !duration || !date) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      const sessionData = { topic, duration, notes, date };
+      localStorage.setItem("currentSession", JSON.stringify(sessionData));
+      window.location.href = "timer.html";
+    });
+  </script>
+</body>
+</html>

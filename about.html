@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About - FocusZen</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <script>
+    if (!localStorage.getItem("userEmail")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <header>
+    <div class="logo">📘 FocusZen</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="history.html">View History</a>
+      <a href="about.html">About</a>
+      <a href="summarize.html">Summarize</a>
+    </nav>
+    <div id="userEmailDisplay" style="font-size: 0.9em; color: #ddd; margin-top: 5px;"></div>
+    <script>
+      const emailDisplay = document.getElementById("userEmailDisplay");
+      const userEmail = localStorage.getItem("userEmail");
+      if (userEmail) {
+        emailDisplay.textContent = `Logged in as: ${userEmail}`;
+      }
+    </script>
+
+  </header>
+
+  <main class="main-container">
+    <div class="card-box">
+      <h1>About FocusZen</h1>
+      <p><strong>FocusZen</strong> is your personal distraction blocker and focus coach. It gently reminds you to stay on task using timers and motivational quotes. Plus, it tracks your daily streaks and progress to help you build consistency.</p>
+      <ul>
+        <li>⏱ Study Timer with visual progress</li>
+        <li>📅 Daily streak counter for habit building</li>
+        <li>📖 Motivational quotes to lift you up</li>
+        <li>✏️ Save your tasks for future reference</li>
+        <li>🧠 Summarize learning materials with Gemini 1.5</li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>
