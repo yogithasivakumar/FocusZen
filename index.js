@@ -1,6 +1,13 @@
 const express = require("express");
 const app = express();
 
-app.get("/status", (req, res) => res.send("ok"));
-app.post("/login", (req, res) => {});
-app.put("/users/:id", (req, res) => {});
+app.get("/hello", (req, res) => {
+  res.send("Hello World");
+});
+
+app.post("/login", (req, res) => {
+  res.send("Login");
+});
+
+app.listen(3000);
+
