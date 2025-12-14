@@ -1,54 +1,46 @@
 # 1. Overview
-FocusZen appears to be a web-based productivity application designed to help users manage their focus and potentially track their activity. The project utilizes a backend built with Express.js (`index.js`) to handle server-side logic, including user authentication (`POST /login`) and basic API responses (`GET /hello`). The frontend consists of various HTML files (`index.html`, `login.html`, `timer.html`, `history.html`, `summarize.html`, `about.html`) styled with `style.css` and enhanced with `script.js`. The presence of `timer.html` and `alarm.mp3` strongly suggests a focus timer or pomodoro-like functionality. Additionally, `gemini.js` and `summarize.html` hint at potential integration with AI models (like Google Gemini) for text summarization or other AI-powered features. The combination of static assets and a backend API points to a full-stack web application focused on enhancing user productivity.
-
----
+FocusZen is a web application designed to enhance productivity and focus. It appears to be a timer or Pomodoro-style application, offering features such as a timer, task history, and potentially AI-powered summarization. The project utilizes a Node.js Express backend to serve API endpoints and manage application logic, while the frontend is built with standard web technologies (HTML, CSS, JavaScript) to provide an interactive user interface. The inclusion of `gemini.js` suggests integration with Google's Gemini AI for advanced functionalities, likely for summarizing content or providing insights related to user activities.
 
 # 2. Architecture Diagram (Mermaid)
 
 ```mermaid
 flowchart TD
-    App[FocusZen] --> UI[Frontend]
-    App --> Backend[Backend Logic]
-    Backend --> API[API Endpoints]
-    App --> Assets[Static Files]
+    App --> Frontend
+    App --> Backend
+    Backend --> API
+    App --> Assets
 ```
-
----
 
 # 3. Project Workflow (Mermaid + explanation)
 
 ```mermaid
-graph TD
-    A[User] --> B{Access Web App}
-    B --> C[Frontend (HTML/CSS/JS)]
-    C -- "Serves Static Pages" --> D[Backend (Express.js)]
-    C -- "API Request (e.g., /login, /hello)" --> D
-    D -- "Process Request" --> E[API Endpoints]
-    E -- "Database Interaction (Implied for Login)" --> F[Data Storage (e.g., for user credentials)]
-    D -- "Serve API Response / Data" --> C
-    C --> G[Display UI / Functionality (Timer, History, Summary)]
+flowchart TD
+    User --> Frontend
+    Frontend --> Backend
+    Backend --> API
+    API --> Backend
+    Backend --> Frontend
 ```
 
 **Explanation:**
-The user initiates interaction by accessing the FocusZen web application through their browser. The web app's frontend, comprising HTML pages, CSS stylesheets, and JavaScript files, is then served to the user. This frontend communicates with the backend, an Express.js server, for dynamic functionalities such as user authentication (e.g., handling `POST /login` requests) or retrieving basic information (`GET /hello`). The backend processes these API requests, potentially interacts with a data store for operations like user verification, and sends back appropriate responses. The frontend then utilizes these responses to update the user interface, manage functionalities like the focus timer, display session history, or provide text summarization features. Static assets like `alarm.mp3` are also served to enhance the user experience, particularly for timer functionalities.
-
----
+1.  **User Interaction**: A user accesses the FocusZen application through their web browser, interacting with the frontend (HTML, CSS, JavaScript).
+2.  **Frontend Request**: The frontend sends requests to the backend for various actions, such as logging in, starting a timer, or requesting a summary.
+3.  **Backend Processing**: The Node.js Express backend (`index.js`) receives these requests, processes them, and may interact with internal logic or external services.
+4.  **API Interaction**: For specific functionalities like user authentication or data retrieval, the backend communicates with its defined API endpoints. If AI capabilities are involved (e.g., summarization via `gemini.js`), the backend might interact with an external AI service.
+5.  **Backend Response**: After processing, the backend sends a response back to the frontend.
+6.  **Frontend Update**: The frontend receives the response and updates the user interface accordingly, displaying timer status, login success, or summarized content.
 
 # 4. API Endpoints
-- **GET /hello** (from \index.js)
-- **POST /login** (from \index.js)
-
----
+-   **GET /hello** (from \index.js)
+-   **POST /login** (from \index.js)
 
 # 5. Recent Commit History (Last 5)
 
-- **b950f6c** — Add hello route and improve login response (yogithasivakumar)
-- **ffa8bd2** — Initialize Express server with basic routes (yogithasivakumar)
-- **7b72075** — commit test5 (yogithasivakumar)
-- **784ee5f** — commit test5 (yogithasivakumar)
-- **37fa2a9** — commit test5 (yogithasivakumar)
-
----
+-   **ceeb686** — docs: auto-generate README using AutoDocs (yogithasivakumar)
+-   **b950f6c** — Add hello route and improve login response (yogithasivakumar)
+-   **ffa8bd2** — Initialize Express server with basic routes (yogithasivakumar)
+-   **7b72075** — commit test5 (yogithasivakumar)
+-   **784ee5f** — commit test5 (yogithasivakumar)
 
 # 6. File Structure
 
@@ -86,9 +78,9 @@ The user initiates interaction by accessing the FocusZen web application through
   📁 objects
     📁 info
     📁 pack
-      📄 pack-796f5188b284314d3a25e36a629d0c903f7717cb.idx
-      📄 pack-796f5188b284314d3a25e36a629d0c903f7717cb.pack
-      📄 pack-796f5188b284314d3a25e36a629d0c903f7717cb.rev
+      📄 pack-2aa617a909b2fbaeb319c8a45d4c010d6886907e.idx
+      📄 pack-2aa617a909b2fbaeb319c8a45d4c010d6886907e.pack
+      📄 pack-2aa617a909b2fbaeb319c8a45d4c010d6886907e.rev
   📄 packed-refs
   📁 refs
     📁 heads
@@ -118,8 +110,6 @@ The user initiates interaction by accessing the FocusZen web application through
 📄 test3.txt
 📄 timer.html
 ```
-
----
 
 # 7. AutoDocs Note
 “This documentation was automatically generated using **AutoDocs AI Analyzer**.”
