@@ -1,7 +1,8 @@
 # 1. Overview
-FocusZen is a web application designed to enhance productivity and focus. It appears to be a timer or Pomodoro-style application, offering features such as a timer, task history, and potentially AI-powered summarization. The project utilizes a Node.js Express backend to serve API endpoints and manage application logic, while the frontend is built with standard web technologies (HTML, CSS, JavaScript) to provide an interactive user interface. The inclusion of `gemini.js` suggests integration with Google's Gemini AI for advanced functionalities, likely for summarizing content or providing insights related to user activities.
+FocusZen appears to be a web application designed to enhance productivity and focus. It features a backend built with Express.js, handling API requests for functionalities like user authentication and potentially other data operations. The frontend is composed of various HTML pages (e.g., `login.html`, `timer.html`, `history.html`, `summarize.html`) styled with CSS and interactive JavaScript. The presence of `gemini.js` and a `summarize.html` strongly indicates integration with the Google Gemini API to provide AI-driven summarization capabilities, likely for text or content related to focus sessions. Key features likely include a productivity timer, task tracking, and AI assistance for summarizing information.
 
 # 2. Architecture Diagram (Mermaid)
+This diagram shows STATIC components only.
 
 ```mermaid
 flowchart TD
@@ -15,32 +16,39 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    User --> Frontend
-    Frontend --> Backend
-    Backend --> API
-    API --> Backend
-    Backend --> Frontend
+    Step1[User action]
+    Step2[UI event]
+    Step3[Request handling]
+    Step4[Response returned]
+
+    Step1 --> Step2
+    Step2 --> Step3
+    Step3 --> Step4
 ```
 
-**Explanation:**
-1.  **User Interaction**: A user accesses the FocusZen application through their web browser, interacting with the frontend (HTML, CSS, JavaScript).
-2.  **Frontend Request**: The frontend sends requests to the backend for various actions, such as logging in, starting a timer, or requesting a summary.
-3.  **Backend Processing**: The Node.js Express backend (`index.js`) receives these requests, processes them, and may interact with internal logic or external services.
-4.  **API Interaction**: For specific functionalities like user authentication or data retrieval, the backend communicates with its defined API endpoints. If AI capabilities are involved (e.g., summarization via `gemini.js`), the backend might interact with an external AI service.
-5.  **Backend Response**: After processing, the backend sends a response back to the frontend.
-6.  **Frontend Update**: The frontend receives the response and updates the user interface accordingly, displaying timer status, login success, or summarized content.
+**Step 1: User action**
+A user interacts with the FocusZen web application, for example, by clicking a login button, starting a timer, or submitting text for summarization.
+
+**Step 2: UI event**
+The frontend JavaScript detects this interaction as a UI event. It gathers any necessary data from the user interface.
+
+**Step 3: Request handling**
+The frontend sends an HTTP request (e.g., POST for login, GET for data) to the Express.js backend. The backend processes this request, which might involve authenticating users, interacting with external APIs like Gemini, or fetching/storing data.
+
+**Step 4: Response returned**
+After processing, the backend sends an HTTP response back to the frontend. The frontend then updates the user interface accordingly, such as displaying a success message, showing summarized text, or updating the timer's state.
 
 # 4. API Endpoints
--   **GET /hello** (from \index.js)
--   **POST /login** (from \index.js)
+- **GET /hello** (from \index.js)
+- **POST /login** (from \index.js)
 
 # 5. Recent Commit History (Last 5)
 
--   **ceeb686** — docs: auto-generate README using AutoDocs (yogithasivakumar)
--   **b950f6c** — Add hello route and improve login response (yogithasivakumar)
--   **ffa8bd2** — Initialize Express server with basic routes (yogithasivakumar)
--   **7b72075** — commit test5 (yogithasivakumar)
--   **784ee5f** — commit test5 (yogithasivakumar)
+- **fa576a0** — docs: auto-generate README using AutoDocs (yogithasivakumar)
+- **ceeb686** — docs: auto-generate README using AutoDocs (yogithasivakumar)
+- **b950f6c** — Add hello route and improve login response (yogithasivakumar)
+- **ffa8bd2** — Initialize Express server with basic routes (yogithasivakumar)
+- **7b72075** — commit test5 (yogithasivakumar)
 
 # 6. File Structure
 
@@ -78,9 +86,9 @@ flowchart TD
   📁 objects
     📁 info
     📁 pack
-      📄 pack-2aa617a909b2fbaeb319c8a45d4c010d6886907e.idx
-      📄 pack-2aa617a909b2fbaeb319c8a45d4c010d6886907e.pack
-      📄 pack-2aa617a909b2fbaeb319c8a45d4c010d6886907e.rev
+      📄 pack-e080392d2a079d0e94218d48117ed75a54584ac0.idx
+      📄 pack-e080392d2a079d0e94218d48117ed75a54584ac0.pack
+      📄 pack-e080392d2a079d0e94218d48117ed75a54584ac0.rev
   📄 packed-refs
   📁 refs
     📁 heads
